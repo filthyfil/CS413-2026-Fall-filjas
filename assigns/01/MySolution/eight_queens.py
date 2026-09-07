@@ -46,13 +46,8 @@ def print_row(i: int) -> None:
 def print_board(bd: int8) -> None:
     print_row(bd[0]); print_row(bd[1]); print_row(bd[2]); print_row(bd[3])
     print_row(bd[4]); print_row(bd[5]); print_row(bd[6]); print_row(bd[7])
-    print_newline()
+    print()
 # end of [print_board]
-
-
-def print_newline() -> None:
-    print("\n", end="")
-# end of [print_newline]
 
 
 def board_get(bd: int8, i: int) -> int:

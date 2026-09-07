@@ -69,6 +69,7 @@ implement main0 () =
   print! ("returned ", search ((0,0,0,0,0,0,0,0), 9, 0, 0), "\n")
 HANG
 $PATSCC $CF -o out/hang out/hang.dats 2>/dev/null || fail=1
+rm -f hang_dats.c   # patscc emits the C file into the CWD, not beside -o
 timeout 10 ./out/hang > /dev/null 2>&1
 [ $? -eq 124 ] && echo "OK: ATS search(i=9) still non-terminating (as documented)" \
                || { echo "CHANGED: ATS search(i=9) now terminates"; fail=1; }
