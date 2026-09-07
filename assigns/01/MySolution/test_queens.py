@@ -14,10 +14,19 @@ Run: python3 test_queens.py
 import sys
 import threading
 
-import eight_queens as q
-from eight_queens import (
-    board_get, board_set, safety_test1, safety_test2, search,
-)
+import importlib
+import os
+
+# Which implementation to exercise.  Defaults to the recursive translation;
+# set QUEENS_MODULE=eight_queens_loop to run the same 42 cases against the
+# iterative variant.  The expected values are properties of the algorithm,
+# not of either encoding, so both must produce identical output.
+q = importlib.import_module(os.environ.get("QUEENS_MODULE", "eight_queens"))
+board_get = q.board_get
+board_set = q.board_set
+safety_test1 = q.safety_test1
+safety_test2 = q.safety_test2
+search = q.search
 
 # (ntest, nfail) -- threaded through, exactly as the ATS driver does it.
 stat = tuple

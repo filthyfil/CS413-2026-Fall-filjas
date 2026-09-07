@@ -21,6 +21,7 @@ Reproduce everything below with:
 | 2 | Whole-program output vs frozen golden, and ATS vs Python | **PASS** (14012 bytes identical) |
 | 3 | 42 per-function cases, ATS vs Python | **PASS** (42/42 both sides; 278726 bytes of stdout identical) |
 | 4 | Documented non-termination still reproduces | **PASS** |
+| 5 | Iterative variant matches ATS (output, 42 cases, constant stack) | **PASS** |
 
 **42 tests, 0 failures, on both implementations.** The two drivers' stdout is
 byte-for-byte identical, so agreement is verified mechanically rather than by eye.
@@ -157,6 +158,45 @@ without editing four other places.
 
 ---
 
+## 3a. The iterative variant (`eight_queens_loop.py`)
+
+`eight_queens.py` keeps the recursive shape of the ATS original, which costs
+17,685 live frames and needs `sys.setrecursionlimit` plus a 64 MB thread.
+`eight_queens_loop.py` makes the opposite trade: `print_dots`, `safety_test2`
+and `search` become loops. Every recursive call in the original is in tail
+position, so each converts mechanically to "overwrite the parameters, loop
+again". Python evaluates a whole right-hand side before assigning, which is
+exactly the semantics of evaluating a call's arguments before entering it, so
+`i, j = i - 1, board_get(bd, i - 1) + 1` reads the *old* `i` — as the ATS does.
+
+Measured, not assumed:
+
+| | `eight_queens.py` | `eight_queens_loop.py` |
+|---|---|---|
+| Peak frame depth, full run | 17,685 | **5** |
+| Needs recursion limit + thread | yes | **no** |
+| Whole-program output | identical to ATS | identical to ATS |
+| The 42 per-function cases | 42/42 | **42/42, byte-identical** |
+| **D1, `search(bd, 9, 0, 0)`** | `RecursionError` | **runs forever — matches ATS** |
+
+That last row is the interesting one. The iterative variant is *less* faithful
+structurally but *more* faithful semantically: on the D1 input it reproduces the
+ATS behaviour exactly, where the recursive translation diverges by raising
+`RecursionError`. Neither is wrong — they are different answers to the fact that
+Python has no tail-call elimination — but it means the choice of encoding is
+itself observable, and only on a defective input.
+
+`test_queens.py` takes the module under test from `QUEENS_MODULE`, so the same
+42 cases run against either implementation without duplicating the suite:
+
+```sh
+QUEENS_MODULE=eight_queens_loop python3 test_queens.py
+```
+
+---
+
+---
+
 ## 4. Test inventory
 
 42 cases in `test_queens.dats` / `test_queens.py`, in identical order with
@@ -216,7 +256,8 @@ mathematics of the 8-queens problem, not against the program's own output.
 |---|---|
 | `source_code_snippets.txt` | Instructor's original, never modified |
 | `eight_queens.dats` | Original + prelude include + `main0` (guarded) |
-| `eight_queens.py` | Hand translation |
+| `eight_queens.py` | Hand translation, recursive (mirrors the ATS shape) |
+| `eight_queens_loop.py` | Same program with the tail calls written as loops |
 | `test_queens.dats` | ATS test driver (42 cases) |
 | `test_queens.py` | Python test driver (same 42 cases, same output) |
 | `run_tests.sh` | Four-layer runner |

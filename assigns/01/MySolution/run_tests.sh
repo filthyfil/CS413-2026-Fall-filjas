@@ -74,6 +74,34 @@ timeout 10 ./out/hang > /dev/null 2>&1
 [ $? -eq 124 ] && echo "OK: ATS search(i=9) still non-terminating (as documented)" \
                || { echo "CHANGED: ATS search(i=9) now terminates"; fail=1; }
 
+say "Layer 5: iterative variant (eight_queens_loop.py)"
+# Same program with the three tail-recursive functions written as loops.
+# It must agree with the ATS on both the whole-program output and all 42
+# per-function cases -- the expected values are properties of the algorithm,
+# not of the recursive encoding.
+$PYTHON eight_queens_loop.py > out/run_loop.txt || fail=1
+diff -u out/run_ats.txt out/run_loop.txt > /dev/null \
+  && echo "OK: whole-program output matches ATS"   || { echo "FAIL: loop vs ATS output"; fail=1; }
+QUEENS_MODULE=eight_queens_loop $PYTHON test_queens.py > out/unit_loop.txt; rc_loop=$?
+diff -u out/unit_ats.txt out/unit_loop.txt > /dev/null \
+  && echo "OK: 42 cases match ATS byte-for-byte"   || { echo "FAIL: loop suite differs"; fail=1; }
+[ "$rc_loop" -eq 0 ] || { echo "FAIL: loop suite exit=$rc_loop"; fail=1; }
+# The payoff: constant stack, so no recursion-limit or big-stack thread.
+$PYTHON -c "
+import sys, io, contextlib, eight_queens_loop as q
+peak = 0
+def tr(f, e, a):
+    global peak
+    d = 0
+    while f: d += 1; f = f.f_back
+    if d > peak: peak = d
+sys.setprofile(tr)
+with contextlib.redirect_stdout(io.StringIO()): q.search((0,)*8, 0, 0, 0)
+sys.setprofile(None)
+sys.exit(0 if peak < 50 else 1)
+" && echo "OK: runs in constant stack (peak depth < 50)" \
+  || { echo "FAIL: loop variant is not constant-stack"; fail=1; }
+
 say "RESULT"
 if [ "$fail" -eq 0 ]; then echo "ALL TESTS PASSED"; else echo "FAILURES"; fi
 exit $fail
