@@ -128,6 +128,16 @@ else (
 
 (* ****** ****** *)
 
+//
+// When this file is #include'd by a test driver, that driver supplies its own
+// entry point; two [main] implementations cannot coexist in one program.
+// (Idiom taken from $PATSHOME/contrib/ATS-extsolve-z3/DATS/SOLVING/*.dats)
+//
+#ifdef
+EIGHT_QUEENS_NO_MAIN
+#then
+#else
+//
 implement
 main0 () = let
 //
@@ -137,6 +147,8 @@ val nsol = search (bd0, 0(*i*), 0(*j*), 0(*nsol*))
 in
   print! ("The total number of solutions is ", nsol, ".\n")
 end // end of [main0]
+//
+#endif // ifdef(EIGHT_QUEENS_NO_MAIN)
 
 (* ****** ****** *)
 
