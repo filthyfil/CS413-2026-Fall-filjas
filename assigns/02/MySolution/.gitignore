@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+.*.swp
+TEST/eight_queens_ats
+TEST/eight_queens_dats.c
