@@ -15,6 +15,16 @@
    the AI's terminology. It then defined "environment" as the combined system and added an
    attribution rule (§3.1): only well-formed compiler diagnostics may blame the program.
    It also broadened FR-08 and FR-10 and added A-10 and AC-11.
+4. "I believe the questions in Clarification questions are deeply implied in the requirements
+   doc with the stakeholder … a local webapp means that the files are stored on disk. a program
+   should not be automatically stoped. i think 7 and 8 are valid". I resolved Q1–Q6 from the
+   brief. The AI recorded these answers as team resolutions, not stakeholder answers, and
+   switched storage from the browser to files on disk (A-6, FR-18, EI-4). It also removed
+   U-1 and U-3. Q7 and Q8 stay open.
+5. "the collection is programs that are known to be good." In reply, the AI pointed out that
+   a compiler crash during a collection run then signals a regression rather than a fault in
+   the program. On my approval it added A-11, redefined "Test", changed FR-17 so that such
+   crashes count as failed, added AC-12, and removed U-5.
 
 ## Significant suggestions from the AI
 

@@ -1,7 +1,8 @@
 # Requirements Specification: A Web-Based Environment for Testing LAMBDA (Version 1)
 
-Status: **Draft for stakeholder review.** No stakeholder answers have been received yet. Every
-point the brief leaves open is recorded as an explicit assumption (A-*) or an
+Status: **Draft for stakeholder review.** No stakeholder answers have been received yet.
+Questions Q1–Q6 have been resolved from the brief (§4); Q7 and Q8 remain open.
+Every other point the brief leaves open is recorded as an explicit assumption (A-*) or an
 unresolved issue (U-*) and is **not** presented as a stakeholder decision.
 
 Source document: *Stakeholder Brief: A Web-Based Environment for Testing LAMBDA*
@@ -31,13 +32,13 @@ in §3.1.
 | **Application** | The browser-based software specified in this document (not a product name). |
 | **Environment** | The combined system the user depends on: the application, compiler interface, compiler (real or mock), local browser and computer. Excludes the user's program. |
 | **Environment problem** | Any failure of a part of the environment, as opposed to a problem the compiler reports in the user's program (see §3.1 and FR-08). |
-| **Compiler** | The LAMBDA language tools (parser, compiler and evaluator), whoever provides them. Outside the application. |
-| **Compiler interface** | The agreed boundary through which the application sends source text and receives results (see §7). |
+| **Compiler** | The LAMBDA language tools (parser, compiler and evaluator). Developed as a separate project, outside the application. |
+| **Compiler interface** | The documented boundary through which the application sends source text and receives results (see §7). |
 | **Check** | Ask the compiler to compile a program **without** running it. |
 | **Run** | Ask the compiler to compile **and** run a program and return its value. |
 | **Outcome** | The classified result of a Check or Run (see FR-08). |
 | **Example** | A named program shipped with the application (e.g., factorial). |
-| **Test** | A named program plus an **expectation** (expected value or expected rejection). |
+| **Test** | A named program whose correct outcome is known, plus an **expectation** recording that outcome (expected value or expected rejection). A mismatch therefore points at the compiler, not the program (A-11). |
 | **Collection** | A named, ordered set of tests. |
 | **Mock mode** | Operation using sample compiler responses instead of the real compiler. |
 | **Compiler artifacts** | Extra information the compiler may produce, e.g., an AST or generated code. |
@@ -49,8 +50,7 @@ in §3.1.
 | **Instructor** (customer; lecture user) | Demonstrate examples live and switch between them quickly. Show compiler artifacts for teaching. Keep prepared examples across sessions. Agree on a small, useful v1 early. | [B: intro, Trying a program, Keeping the project manageable] |
 | **Student – program writer** | Write, load and save LAMBDA programs. Run them and understand errors. Get started with no prior compiler experience. | [B: intro, Understanding what happened] |
 | **Student – compiler developer** | Keep a collection of tests and re-run it after changing the compiler to detect regressions. | [B: intro, Keeping examples as tests] |
-| **Compiler provider** (separate team or project) | Supply and evolve the compiler interface. Needs a stable, documented contract with the application. | [B: The compiler is still evolving] |
-| **Application development team** | Build against a mock before the compiler is ready, then connect the real compiler without rewriting the UI. | [B: The compiler is still evolving] |
+| **Developer** (builds both the application and the compiler) | Define and evolve the compiler interface as a stable, documented contract between the two. Build the application against mock responses before the compiler is ready, then connect the real compiler without rewriting the UI. | [B: The compiler is still evolving] |
 
 ## 3. Scope
 
@@ -90,6 +90,11 @@ the program. This implements "If it cannot reach the compiler, I do not want stu
 think their program is wrong" [B: Understanding what happened], applied to the whole
 environment and not only to reaching the compiler.
 
+*In a collection run*, a test's program is already known to have the recorded outcome (A-11).
+A compiler internal failure or unexpected response on that program is still shown with the
+**Environment problem** outcome (FR-08). However, the test counts as **failed** (FR-17),
+because it indicates a compiler regression. This does not blame the program.
+
 ### 3.2 In scope for Version 1
 
 Editing, built-in examples, loading and saving files, Check and Run, classified outcomes with
@@ -109,17 +114,20 @@ installation.
 
 ## 4. Clarification Questions
 
-None of these questions has been answered yet. The *Working position* column states how this
-draft proceeds in the meantime. It is an assumption, not a stakeholder answer.
+No question has been answered by the instructor yet. On review, the brief was found to already
+imply an answer to Q1–Q6. The *Answer* column records that resolution and marks it
+**Resolved (from brief)**. It is a reading of the brief, not a stakeholder answer,
+and the instructor may still overrule it. Q7 and Q8 are not settled by the brief and remain open;
+the *Working position* column states how this draft proceeds in the meantime.
 
 | ID | Question for the instructor | Why the answer matters | Answer | Working position |
 | --- | --- | --- | --- | --- |
-| Q1 | What form will the compiler interface take (command-line program, Python function, local service)? Which fields will a response include: value, error message, source location, AST, generated code? | Defines EI-1. Determines whether FR-09 (error locations) and FR-14 (artifacts) are possible and what they can display. | *Not yet received* | A-1, A-2, A-10 |
-| Q2 | "Change its input" for factorial: does a LAMBDA program read input separately, or is the input a value written in the source? | Decides whether the application needs a separate input field, and whether tests must store inputs. | *Not yet received* | A-3 |
-| Q3 | What kinds of values can a program produce (integers, Booleans, others such as functions or pairs)? How should an actual value be compared with an expected one? | Test pass/fail (FR-15, FR-16) depends on a precise comparison rule. | *Not yet received* | A-4 |
-| Q4 | For tests that expect rejection, is "the compiler rejected it" enough, or must the error kind, message or location also match? Should tests be able to expect a *runtime* error? | Changes the expectation types in FR-15 and how strict a regression check is. | *Not yet received* | A-5 |
-| Q5 | Is it acceptable for work to be kept in the browser on that computer, or must it be kept as ordinary files on disk? | "Come back in another session" [B] can be met either way, but the two differ in backup, moving between browsers, and the risk of data loss. | *Not yet received* | A-6 |
-| Q6 | Should long-running programs be stopped automatically after a time limit? If so, what default? | Stopping by hand is required [B]. Also decides how a non-terminating test is handled in a collection run (FR-12). | *Not yet received* | A-7 |
+| Q1 | What form will the compiler interface take (command-line program, Python function, local service)? Which fields will a response include: value, error message, source location, AST, generated code? | Defines EI-1. Determines whether FR-09 (error locations) and FR-14 (artifacts) are possible and what they can display. | **Resolved (from brief):** the application is a local web app, so the compiler is invoked on the same computer through the EI-1 contract [B: Keeping the project manageable; The compiler is still evolving]. The application and the compiler are built by the same developer, so the interface is defined within this project. Responses carry the fields listed in EI-1, including source locations for errors. | A-1, A-2, A-10 |
+| Q2 | "Change its input" for factorial: does a LAMBDA program read input separately, or is the input a value written in the source? | Decides whether the application needs a separate input field, and whether tests must store inputs. | **Resolved (from brief):** input is written in the source; programs are closed terms. No separate input field. | A-3 |
+| Q3 | What kinds of values can a program produce (integers, Booleans, others such as functions or pairs)? How should an actual value be compared with an expected one? | Test pass/fail (FR-15, FR-16) depends on a precise comparison rule. | **Resolved (from brief):** the set of value kinds grows as the language specification grows. Comparison by exact equality of the compiler's printed form is kept. | A-4 |
+| Q4 | For tests that expect rejection, is "the compiler rejected it" enough, or must the error kind, message or location also match? Should tests be able to expect a *runtime* error? | Changes the expectation types in FR-15 and how strict a regression check is. | **Resolved (from brief):** the brief names two expectations only, an answer or a rejection [B: Keeping examples as tests]. Rejection at compile time is enough, with an optional message substring. Expected runtime errors are not in v1. | A-5 |
+| Q5 | Is it acceptable for work to be kept in the browser on that computer, or must it be kept as ordinary files on disk? | "Come back in another session" [B] can be met either way, but the two differ in backup, moving between browsers, and the risk of data loss. | **Resolved (from brief):** as a local web app, work is stored as files on the local disk, not in browser storage. | A-6 |
+| Q6 | Should long-running programs be stopped automatically after a time limit? If so, what default? | Stopping by hand is required [B]. Also decides how a non-terminating test is handled in a collection run (FR-12). | **Resolved (from brief):** no. A program is never stopped automatically; only the user stops it [B: Understanding what happened]. | A-7 |
 | Q7 | Which browsers and operating systems do students "normally use"? What may the setup instructions assume is already installed (e.g., Python)? | Makes QR-05 testable. Affects how the compiler is launched locally. | *Not yet received* | A-8 |
 | Q8 | While the source notation is still being discussed, should saved examples and tests record which notation or compiler version they were written for? | If the syntax changes, stored examples may become invalid. Affects FR-02, FR-15 and EI-1 versioning. | *Not yet received* | U-2 |
 
@@ -128,15 +136,16 @@ draft proceeds in the meantime. It is an assumption, not a stakeholder answer.
 | ID | Assumption (to be confirmed) | Affects |
 | --- | --- | --- |
 | A-1 | The compiler can be invoked on the user's computer with source text, and it returns a structured response that separates a successful value, a compile-time error and a runtime error. | FR-06–FR-08, EI-1 |
-| A-2 | Source locations and compiler artifacts are **optional** fields: present when the compiler supplies them, absent otherwise. | FR-09, FR-14 |
+| A-2 | The compiler is expected to supply source locations for compile and runtime errors (Q1). Locations and compiler artifacts are still treated as **optional** fields, so the application behaves correctly (FR-09, FR-14) until the compiler provides them. | FR-09, FR-14 |
 | A-3 | Program input is written in the source text. v1 has no separate input field. Programs are closed terms, as in the closed lambda calculus (no free variables), so a program never depends on outside input and the compiler can check it on its own. | FR-02, FR-15 |
-| A-4 | Expected values are integers or Booleans, compared by exact equality of the compiler's printed form of the value. | FR-15, FR-16 |
+| A-4 | Expected values are compared by exact equality of the compiler's printed form of the value (Q3). Integers and Booleans are the value kinds known now; further kinds are covered by the same rule as the language specification grows. | FR-15, FR-16 |
 | A-5 | An "expected compile error" test passes if the compiler rejects the program at compile time. An optional expected-message substring may make it stricter. | FR-15 |
-| A-6 | Storage in the browser, on the same computer and in the same browser, satisfies "another session". File export/import (FR-05, FR-19) provides backup and portability. | FR-18, QR-04 |
-| A-7 | No automatic time limit is imposed. A Check or Run continues until it finishes or the user stops it (FR-11). *Rationale:* the brief says "some examples may run for a long time", and a short timeout would cut off legitimate long runs. This is a team position, not a stakeholder decision. | FR-11, FR-12 |
+| A-6 | Work is stored as files on the local disk by the locally running application (Q5), so it survives reloads, browser restarts and a change of browser on the same computer. File export/import (FR-05, FR-19) provides portability to other computers. | FR-18, QR-04, EI-4 |
+| A-7 | No automatic time limit is imposed. A Check or Run continues until it finishes or the user stops it (FR-11). *Rationale:* the brief says "some examples may run for a long time", and a short timeout would cut off legitimate long runs (Q6). | FR-11, FR-12 |
 | A-8 | *Proposal:* supported browsers are the current stable releases of Chrome, Firefox and Edge on Windows, macOS and Linux. | QR-05 |
-| A-9 | One user per installation. Work stored on a computer belongs to whoever uses that browser profile. | Scope |
-| A-10 | EI-1 asks the compiler provider for this distinction; this assumption covers the case where it is not delivered. The compiler's response distinguishes a diagnostic about the user's program from an internal failure of the compiler itself. When it does not (for example, the compiler process terminates unexpectedly with no well-formed diagnostic), the application treats the case as an Environment problem. | FR-08, FR-10, EI-1 |
+| A-9 | One user per installation. Work stored by an installation belongs to whoever uses that installation. | Scope |
+| A-10 | The compiler's response distinguishes a diagnostic about the user's program from an internal failure of the compiler itself (EI-1). When it does not, for instance while the compiler is still evolving (for example, the compiler process terminates unexpectedly with no well-formed diagnostic), the application treats the case as an Environment problem. | FR-08, FR-10, EI-1 |
+| A-11 | *Position:* a collection holds programs whose correct outcome is known: programs known to be good, with their expected values, and programs known to be rejected. A collection is not used to explore programs of unknown correctness; that is done with Check and Run. So in a collection run, a result that differs from the expectation, including a compiler internal failure or unexpected response, is treated as a compiler regression. | FR-15, FR-17, §3.1 |
 
 ## 6. Requirements
 
@@ -178,13 +187,13 @@ Conveniences and anything the brief calls optional are **S** or **C**.
 | --- | --- | --- |
 | FR-15 | The user shall be able to create, rename, edit and delete **tests**. Each test has a name that is unique within its collection, a program, and one expectation: (a) *expected value* (A-4), or (b) *expected compile error*, optionally with a message substring (A-5). The user shall be able to create a test from the current editor contents. | M |
 | FR-16 | The user shall be able to run all tests in a collection with one action. Each test shall be run independently. A test that fails, is stopped, or meets an Environment problem shall be recorded for that test only, and the remaining tests shall still be run. | M |
-| FR-17 | After a collection run, the application shall display a summary: the number of tests that **passed**, **failed** (outcome did not match the expectation) and could **not be evaluated** (Stopped or Environment problem). For each not-evaluated test it shall show the cause (stopped by the user, or which part of the environment failed, per FR-10), so that a compiler internal failure stands out. For each failed or not-evaluated test it shall show the expected outcome, the actual outcome with compiler messages, and an action that opens the test's program in the editor. | M |
+| FR-17 | After a collection run, the application shall display a summary: the number of tests that **passed**, **failed** and could **not be evaluated**. A test **failed** when its outcome did not match the expectation, or when the compiler failed internally or returned an unexpected response (A-11). A test is **not evaluated** when it was Stopped, or when a part of the environment other than the compiler failed (compiler unreachable, application fault, storage). For each failed or not-evaluated test it shall show the cause (mismatch, compiler internal failure, unexpected response, stopped by the user, or which other part of the environment failed, per FR-10), so that a compiler crash is distinguishable from a wrong value. For each failed or not-evaluated test it shall show the expected outcome, the actual outcome with compiler messages, and an action that opens the test's program in the editor. | M |
 
 **Persistence and sharing**
 
 | ID | Requirement | Pri. |
 | --- | --- | --- |
-| FR-18 | The editor contents, modified examples, tests and collections shall be saved automatically, with no explicit save action, and shall be restored after a page reload or after the browser is closed and reopened on the same computer (A-6). If saving fails, the application shall tell the user that their work could not be saved, report it as an Environment problem and not a fault in the program, keep the editor contents, and retry saving. | M |
+| FR-18 | The editor contents, modified examples, tests and collections shall be saved automatically, with no explicit save action, as files on the local disk (A-6, EI-4). They shall be restored after a page reload, after the browser is closed and reopened, or when the application is opened in another browser on the same computer. If saving fails, the application shall tell the user that their work could not be saved, report it as an Environment problem and not a fault in the program, keep the editor contents, and retry saving. | M |
 | FR-19 | The user shall be able to export a collection to a single file and import such a file, so that collections can be backed up or given to others (a partial answer to sharing). | C |
 
 **Compiler integration**
@@ -195,7 +204,7 @@ Conveniences and anything the brief calls optional are **S** or **C**.
 
 ### 6.2 Quality requirements
 
-Numeric targets below are **proposals** by the team. The brief does not supply them.
+Numeric targets below are **proposals** made in this specification. The brief does not supply them.
 
 | ID | Requirement | How satisfaction is assessed | Pri. |
 | --- | --- | --- | --- |
@@ -203,30 +212,27 @@ Numeric targets below are **proposals** by the team. The brief does not supply t
 | QR-02 **Not colour-only** | Every outcome and test status shall be conveyed by text or a symbol in addition to any colour. | Screenshots converted to greyscale are reviewed. Every status is still distinguishable. | M |
 | QR-03 **Responsiveness** | *Proposal:* actions that do not involve the compiler (typing, selecting an example, switching views) show a visible response within 0.2 s on the reference computer. While a Check or Run is in progress, the editor stays editable and Stop stays usable. | Timed on a reference computer (to be agreed) while an infinite-loop program is running. | M |
 | QR-04 **No data loss** | *Proposal:* after a page reload, browser crash or Environment problem, no more than the last 2 seconds of edits are lost, and no saved test or collection is lost. | Edit, wait 2 s, force-close the browser, reopen, compare. | M |
-| QR-05 **Getting started** | *Proposal:* a person who has used neither the application nor the compiler can, on a supported platform (A-8), install and start the application by following only the written setup instructions, then load an example, run it and read its result using only on-screen text, in 20 minutes or less in total, with no more than 2 of those minutes spent after the application is running. | Observed trial with 3 students outside the team. Setup time and first-use time are recorded separately. | S |
+| QR-05 **Getting started** | *Proposal:* a person who has used neither the application nor the compiler can, on a supported platform (A-8), install and start the application by following only the written setup instructions, then load an example, run it and read its result using only on-screen text, in 20 minutes or less in total, with no more than 2 of those minutes spent after the application is running. | Observed trial with 3 students not involved in the project. Setup time and first-use time are recorded separately. | S |
 
 ## 7. External Interfaces and Dependencies
 
 | ID | Interface | Description |
 | --- | --- | --- |
-| EI-1 | **Compiler interface** (dependency on a separate project) | The application shall reach the compiler only through a single documented contract, agreed with the compiler provider and versioned. **Requests:** operation (Check or Run) and source text. **Responses:** outcome kind (success, compile error, runtime error, or internal compiler failure, kept distinct from diagnostics about the program; this is requested from the compiler provider, and if it is not delivered, A-10 applies), value (on success), message text, optional source location (A-2), optional artifacts, and optional compiler version. Replacing mock responses with the real compiler, or one compiler version with another that honours the contract, shall require no change to the user interface [B: The compiler is still evolving]. The exact transport is **unresolved** (Q1, U-1). |
+| EI-1 | **Compiler interface** (boundary between the application and the compiler) | The application shall reach the compiler only through a single documented, versioned contract, defined within this project. **Requests:** operation (Check or Run) and source text. **Responses:** outcome kind (success, compile error, runtime error, or internal compiler failure, kept distinct from diagnostics about the program; where the compiler does not yet report this, A-10 applies), value (on success), message text, source location for errors (optional until the compiler supplies it, A-2), optional artifacts, and optional compiler version. Replacing mock responses with the real compiler, or one compiler version with another that honours the contract, shall require no change to the user interface [B: The compiler is still evolving]. The application runs locally and invokes the compiler on the same computer (Q1); the exact request and response format is documented as part of this contract. |
 | EI-2 | **Mock response provider** | Supplies sample responses in the EI-1 format for demonstrations and development. It shall cover every outcome kind in FR-08, so that the UI can be tested before the compiler exists. |
 | EI-3 | **Local file system** | Used through the browser's standard open and save dialogs for FR-04, FR-05 and FR-19. Program files are plain text. |
-| EI-4 | **Browser storage** | Holds the persisted data for FR-18 (A-6). |
+| EI-4 | **Local data files** | Files on the local disk, written and read by the locally running application, that hold the persisted data for FR-18 (A-6). |
 | EI-5 | **Web browser** | The only user-facing interface. Supported browsers per A-8. |
 
-**Dependency risk:** the compiler and its source notation are still changing (U-2). Until EI-1 is
-agreed, FR-09 and FR-14 can be verified only in mock mode.
+**Dependency risk:** the compiler and its source notation are still changing (U-2). Until the compiler
+implements EI-1, FR-09 and FR-14 can be verified only in mock mode.
 
 ## 8. Unresolved Issues
 
 | ID | Issue | Needed from |
 | --- | --- | --- |
-| U-1 | Transport and format of the compiler interface (Q1). | Instructor and compiler provider |
 | U-2 | How stored examples and tests behave when the source notation changes (Q8). | Instructor |
-| U-3 | Whether tests may expect runtime errors (Q4). Excluded from FR-15 until answered. | Instructor |
 | U-4 | Whether sharing beyond file export is wanted in a later version. | Instructor |
-| U-5 | Whether a compiler crash during a collection run should count as a **failed** test (a regression for a student changing the compiler) instead of **not evaluated**, the current position under the attribution rule (§3.1). FR-17 shows the cause either way. | Instructor |
 
 ## 9. Acceptance Criteria
 
@@ -245,6 +251,7 @@ These are specifications of future checks. No system has been tested.
 | AC-09 | FR-20 | Application started in mock mode. | Run any example. | A mock-mode indicator is visible throughout. The outcome carries the "SAMPLE RESPONSE" label. |
 | AC-10 | QR-02 | Collection results from AC-07 displayed. | Convert a screenshot to greyscale. | Passed, failed and not-evaluated tests are still distinguishable by text or symbol. |
 | AC-11 *(failure)* | FR-08, FR-10 | A compiler build (or mock response) that crashes, or returns a malformed response, for a valid program. | Run the valid program. | Outcome labelled **Environment problem** identifying a compiler internal failure or unexpected response. **Not** labelled Compile error or Runtime error. No source line is highlighted. The editor text is unchanged. |
+| AC-12 *(failure)* | FR-17, A-11 | Collection of 3 tests with correct expectations. The compiler (or a mock response) crashes on the second test. | Run the collection. | Summary: 2 passed, 1 failed, 0 not evaluated. The failed test's cause is shown as a compiler internal failure, not as a wrong value. The third test still runs. |
 
 ## 10. Traceability
 
@@ -264,10 +271,10 @@ These are specifications of future checks. No system has been tested.
 | FR-12 | Understanding what happened ("might never finish… a way to stop it and move on"); Keeping examples as tests ("one troublesome test") | A-7, Q6 |
 | FR-13 | Understanding what happened ("know which version produced the result") | — |
 | FR-14 | Trying a program ("inspect… abstract syntax tree or generated code… not… get in the way") | A-2 |
-| FR-15 | Keeping examples as tests ("named tests… expect an answer… expect the compiler to reject") | A-4, A-5, U-3 |
+| FR-15 | Keeping examples as tests ("named tests… expect an answer… expect the compiler to reject") | A-4, A-5, Q3, Q4 |
 | FR-16 | Keeping examples as tests ("run the collection again"; "one troublesome test should not make the rest… useless") | — |
-| FR-17 | Keeping examples as tests ("quick summary… enough detail to investigate") | U-5 |
-| FR-18 | Keeping examples as tests ("refreshing the page… losing the examples"; "another session"); Understanding what happened ("keep their work") | A-6 |
+| FR-17 | Keeping examples as tests ("quick summary… enough detail to investigate"; "check whether anything has broken") | A-11 |
+| FR-18 | Keeping examples as tests ("refreshing the page… losing the examples"; "another session"); Understanding what happened ("keep their work") | A-6, Q5 |
 | FR-19 | Keeping examples as tests ("sharing… could live without that") | U-4 |
 | FR-20 | The compiler is still evolving ("sample compiler responses… nobody mistakes them") | — |
 | QR-01 | Keeping the project manageable ("main tasks with a keyboard"; "move between examples") | — |
@@ -275,9 +282,9 @@ These are specifications of future checks. No system has been tested.
 | QR-03 | Keeping the project manageable ("respond promptly… even when the compiler takes longer") | Proposed target |
 | QR-04 | Understanding what happened ("keep their work"); Keeping examples as tests ("refreshing") | Proposed target |
 | QR-05 | Intro ("easy to get started… not used the compiler before"); Keeping the project manageable ("browser students normally use"; "another person can follow the instructions") | A-8, Q7, proposed target |
-| EI-1, EI-2 | The compiler is still evolving ("connect the real compiler without starting the interface over") | A-1, A-2, A-10, U-1 |
+| EI-1, EI-2 | The compiler is still evolving ("connect the real compiler without starting the interface over") | A-1, A-2, A-10, Q1 |
 | EI-3 | Trying a program ("programs saved in files"; "keep a program") | Supports FR-04, FR-05, FR-19 |
-| EI-4 | Keeping examples as tests ("refreshing the page"; "another session") | A-6; supports FR-18 |
+| EI-4 | Keeping examples as tests ("refreshing the page"; "another session") | A-6, Q5; supports FR-18 |
 | EI-5 | Keeping the project manageable ("a browser students normally use") | A-8 |
 
 ## 11. Review Notes
@@ -312,3 +319,9 @@ Issues found while reviewing an earlier draft, and how each was resolved:
    has no product name. "Environment" was defined as the combined system, and an attribution
    rule was added (§3.1). It lets only well-formed compiler diagnostics blame the program.
    FR-08, FR-10, A-10, EI-1 and AC-11 implement it.
+8. **A compiler crash in a collection run was counted as "not evaluated".** Under the
+   attribution rule, a crash in a collection run was reported as not evaluated, so a student
+   who broke the compiler could miss the regression. Collections hold programs whose outcome
+   is already known (A-11), so a crash there cannot be a fault in the program. It now counts
+   as **failed**, with the cause shown (FR-17, AC-12). The outcome label is still
+   Environment problem (§3.1), and U-5 was removed.
