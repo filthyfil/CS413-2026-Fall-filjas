@@ -157,6 +157,19 @@ def test_runner_cancel_stops_infinite_loop_and_allows_retry(lt, sample):
     assert lt.interpret(fact(4), 3, "retry")["value"] == "D0Vint(arg1=24)"
 
 
+def test_new_run_stops_an_abandoned_run(lt, sample):
+    out = {}
+    t = threading.Thread(target=lambda: out.update(
+        res=lt.interpret(sample("infinite_loop"), 1, "abandoned")))
+    t.start()
+    deadline = time.time() + 10
+    while "abandoned" not in lt.runner.active_runs() and time.time() < deadline:
+        time.sleep(0.02)
+    assert lt.interpret(fact(3), 2, "next")["value"] == "D0Vint(arg1=6)"
+    t.join(10)
+    assert out["res"]["status"] == "cancelled"
+
+
 def test_cancel_unknown_run_returns_false(lt):
     assert lt.cancel("nothing-running") is False
 

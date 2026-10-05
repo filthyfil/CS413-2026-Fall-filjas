@@ -3,6 +3,7 @@
 Python threads cannot be killed from outside, so each run gets its own
 process (``spawn`` start method). The HTTP request thread waits for the
 child's answer; ``cancel(run_id)`` from another request kills the child.
+Starting a new run also stops any run left over from before (one user).
 There is deliberately no time limit: the user decides when to stop.
 """
 import multiprocessing
@@ -71,10 +72,17 @@ class InterpretRunner:
         with self._lock:
             if run_id in self._jobs:
                 raise ValueError(f"run id {run_id!r} is already running")
+            # Single user, one run at a time: anything still running was
+            # abandoned (e.g. the tab was closed), so stop it.
+            orphans = list(self._jobs.values())
+            for orphan in orphans:
+                orphan.cancelled = True
             self._jobs[run_id] = job
             if run_id in self._early_cancels:
                 self._early_cancels.discard(run_id)
                 job.cancelled = True
+        for orphan in orphans:
+            self._kill(orphan.process)
         try:
             if job.cancelled:
                 return RunOutcome(cancelled=True)
