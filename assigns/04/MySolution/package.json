@@ -1,0 +1,10 @@
+{
+  "name": "lambda-workbench",
+  "private": true,
+  "description": "Browser-side MVC tests for the LAMBDA web front-end (no dependencies).",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test tests/js/"
+  }
+}

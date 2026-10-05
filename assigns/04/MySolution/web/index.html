@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LAMBDA Workbench</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header>
+    <h1>LAMBDA Workbench</h1>
+    <p>Enter a <code>d0exp</code> constructor expression, such as
+      <code>D0Eop2("+", D0Eint(20), D0Eint(22))</code>, then lint or interpret it.</p>
+  </header>
+
+  <main id="app" aria-busy="false">
+    <section aria-labelledby="load-heading">
+      <h2 id="load-heading">1. Load source</h2>
+      <div class="row" role="group" aria-labelledby="load-heading">
+        <label class="file">Choose File
+          <input type="file" id="file-input" accept=".txt,text/plain">
+        </label>
+        <button type="button" id="manual-btn">Manual input</button>
+        <button type="button" data-example="factorial">Factorial (canned)</button>
+        <button type="button" data-example="fibonacci">Fibonacci (canned)</button>
+      </div>
+      <p id="source-info" aria-live="polite"></p>
+    </section>
+
+    <section aria-labelledby="edit-heading">
+      <h2 id="edit-heading">2. Edit</h2>
+      <label for="editor">Program (constructor expression)</label>
+      <textarea id="editor" rows="14" spellcheck="false" autocomplete="off"
+        aria-describedby="edit-state"></textarea>
+      <p id="edit-state"></p>
+      <div class="row">
+        <button type="button" id="apply-btn">Apply changes</button>
+        <button type="button" id="discard-btn">Discard changes</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="actions-heading">
+      <h2 id="actions-heading">3. Actions</h2>
+      <div class="row" role="group" aria-labelledby="actions-heading">
+        <button type="button" id="op-lint">Lint</button>
+        <button type="button" id="op-interpret">Interpret</button>
+        <button type="button" id="op-typecheck">Type-check</button>
+        <button type="button" id="op-compile">Compile</button>
+        <button type="button" id="op-execute" aria-describedby="execute-note">Execute</button>
+      </div>
+      <div class="row">
+        <button type="button" id="stop-btn">Stop</button>
+        <button type="button" id="retry-btn" hidden>Retry</button>
+      </div>
+      <p id="action-hint"></p>
+      <p id="execute-note" class="note"></p>
+      <p id="status" role="status"></p>
+      <p id="notice" aria-live="polite" hidden></p>
+    </section>
+
+    <section aria-labelledby="results-heading">
+      <h2 id="results-heading">4. Results</h2>
+      <ol id="results" aria-live="polite"></ol>
+    </section>
+  </main>
+</body>
+</html>
