@@ -13,7 +13,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and
 | --- | --- | --- |
 | Running the app | Python 3.12 or later, plus Flask (installed below) | Python 3.12.14, Flask 3.1.3 |
 | Python tests | pytest (installed below) | pytest 9.1.1 |
-| JavaScript tests | Node.js 18 or later; no npm packages | Node.js `TODO: version` |
+| JavaScript tests | Node.js 18 or later; no npm packages | Node.js 22.23.3 |
 | Using the app | Any current browser | `TODO: browser + version` |
 
 ## Setup, start and test
@@ -34,7 +34,7 @@ Run the tests:
 
 ```sh
 .venv/bin/pytest          # Python: reader, free variables, lint, interpret, HTTP layer
-node --test tests/js/     # JavaScript: Model, Controller (fake backend), HttpBackend
+node --test               # JavaScript: finds tests/js/*.test.js (Model, Controller, HttpBackend)
 ```
 
 ## Using the page
