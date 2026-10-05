@@ -1,0 +1,2 @@
+# Invalid input: only D0E... constructors are accepted; this is not run.
+__import__("os").system("echo hacked")

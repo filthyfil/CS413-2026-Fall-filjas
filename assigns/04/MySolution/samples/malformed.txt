@@ -1,0 +1,2 @@
+# Invalid input: D0Eint needs an integer, not a string.
+D0Eint("five")

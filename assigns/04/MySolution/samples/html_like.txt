@@ -1,0 +1,2 @@
+# Lint reports these names literally; the page must not render them as HTML.
+D0Eapp(D0Evar("<b>bold</b>"), D0Evar("<script>alert(1)</script>"))

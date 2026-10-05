@@ -1,0 +1,2 @@
+# Lint error: x is not declared anywhere.
+D0Evar("x")

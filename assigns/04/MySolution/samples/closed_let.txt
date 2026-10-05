@@ -1,0 +1,2 @@
+# open_var.txt edited into a closed expression: Lint passes, value is 5.
+D0Elet("x", D0Eint(5), D0Evar("x"))

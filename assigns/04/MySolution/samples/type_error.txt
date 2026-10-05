@@ -1,0 +1,2 @@
+# Passes Lint but fails at runtime: adding a boolean to an integer.
+D0Eop2("+", D0Eint(1), D0Ebtf(True))
