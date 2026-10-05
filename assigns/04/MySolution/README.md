@@ -14,7 +14,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the design and
 | Running the app | Python 3.12 or later, plus Flask (installed below) | Python 3.12.14, Flask 3.1.3 |
 | Python tests | pytest (installed below) | pytest 9.1.1 |
 | JavaScript tests | Node.js 18 or later; no npm packages | Node.js 22.23.3 |
-| Using the app | Any current browser | `TODO: browser + version` |
+| Using the app | Any current browser | Firefox 157.0 |
 
 ## Setup, start and test
 
@@ -153,31 +153,28 @@ samples/  factorial, fibonacci, open_var, closed_let, div_zero, type_error,
 
 ## Reflection
 
-> **Draft:** written by the AI assistant from this project's design
-> discussion. The author should rewrite it in their own words.
+MVC's main strength is that it gives each part of the program one clear
+job, which keeps a project manageable as it grows. Those roles were easy to
+state precisely, so they were easy to describe to the AI and to check in
+its output. Changes to one concern stay local: the View only reads the
+Model and forwards clicks to the Controller, so the page's layout or the
+way results are displayed can change without touching any state rules.
+The event-driven design made keeping the page in sync with the state
+simple. The View subscribes to the Model and redraws on every change, so
+it cannot drift out of sync.
 
-MVC helped most where the assignment's rules interact. Revisions, unapplied
-edits, the busy state, the artifact and stale results all affect each other,
-and keeping them in one Model with no DOM and no network made those
-interactions small, explicit methods. Each rule could be tested in Node in
-milliseconds, without a browser. The observer link (View subscribes to
-Model) removed a whole class of bugs: no event handler updates the page
-"by hand", so the page always shows what the Model contains. The backend
-interface paid off in the same way. The Controller test can substitute a
-fake backend that holds, throws or gets cancelled on demand. That made
-busy-state, failure and retry behavior easy to test, and the View did not
-change at all.
+MVC does not prevent messy code by itself; the separation only holds if
+every change respects it. Asynchronous behavior was the hardest part to
+separate. Busy status, Stop, and results that arrive after the source has
+changed all happen between events, so the Model needed explicit rules for
+them, such as ignoring a result whose revision no longer matches. Some
+features also cut across every layer: adding Clear results needed a Model
+rule, a Controller method and a View button. The Model is also less of a
+black box than I expected, because the View reads its state fields
+directly, so changing the shape of that state would break the View.
 
-Separation was hardest at the edges. File upload is partly a browser
-concern (the `File` object) and partly a rule (UTF-8 and size), so the
-Controller decodes and the Model validates. The 1 MB limit is duplicated in
-JavaScript and Python because each side has to protect itself. Stopping a
-run cut across every layer: a Stop button in the View, a run id in the
-Controller, an abort in the adapter and a process kill on the server. A
-thread could not be stopped at all, which forced the child-process design.
-
-The architecture makes adding a real compiler easy. The buttons, dispatch,
-result rendering and the Model's artifact rules (bound to a revision,
-cleared on change, required by Execute) already exist. A compiler only needs
-to implement `LanguageTools.compile` and `execute` on the server and return
-an artifact in the documented format.
+The architecture makes adding a real compiler easy. The buttons, dispatch
+and result display already exist, and the Model already ties an artifact
+to a source revision and discards it when the source changes. A compiler
+only has to implement Compile and Execute behind the backend interface,
+the same interface that lets the tests substitute a fake backend.

@@ -2,9 +2,6 @@
 
 **Tool:** Claude Code (Anthropic, model Claude Opus 5.5), used in the terminal.
 
-> **Draft:** written by the AI from this session. Check it against your own
-> memory of the session, and write "How I reviewed the output" yourself.
-
 ## Important prompts
 
 1. "i dont understand this line" (about the testing paragraph: a model test
@@ -41,6 +38,25 @@
 7. "actually we may use node; and flask; etc". This settled the
    dependencies: Python 3.12 and Flask to run the app, plus Node 18 or later
    (built-in `node:test` only) for the JavaScript tests.
+8. "do it" (install Node without sudo). The AI downloaded the official
+   Node 22 build into `~/.local/node` and verified its checksum. The first
+   JS test run showed that `node --test tests/js/` fails on Node 22, so
+   the documented command became plain `node --test`.
+9. "I think the results panel should have a clear." The AI added Clear
+   results as a Model rule (`clearResults()`), a Controller method and a
+   View button, with tests.
+10. "Explain the implementation and architecture in terms of the MVC" and
+   "V and C are bidirectional?" The AI explained each part's API and
+   that the View-to-Controller link is one-way: the Controller never
+   references the View and affects it only through the Model.
+11. "Are we compliant with the spec; assignment?" The AI checked the
+   submission against Assign04.md and listed what was still missing
+   (browser test, my review, placeholders, push).
+12. "ok, revise my reflection please, note any misconceptions". I wrote a
+   first reflection; the AI expanded it to 280 words to cover all three
+   required questions, and pointed out misconceptions (for example, that
+   MVC by itself prevents spaghetti code, and that the Model is a full
+   black box when the View reads its state fields directly).
 
 ## Significant suggestions from the AI
 
@@ -74,4 +90,4 @@
 
 ## How I reviewed the output
 
-TODO: describe in your own words what you read, ran, changed or rejected.
+With 2k LOCs, reading the coding and fully understanding the system becomes unpractical; hence we should rely on good testing and verifying the operation by unit tests, manually using the website, and asking AI to perform code-review. I asked AI for the architectural report specifically about the MVC implementation, and the APIs between the different parts. I ensured that the implementation respects the classical MVC model covered in class. 
