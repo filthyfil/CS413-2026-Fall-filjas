@@ -98,6 +98,10 @@ export class AppController {
     }
   }
 
+  clearResults() {
+    return this.model.clearResults();
+  }
+
   retry() {
     const op = this.model.retryOp;
     return op ? this.run(op) : Promise.resolve({ ok: false, reason: "Nothing to retry." });

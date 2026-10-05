@@ -154,6 +154,16 @@ test("stop cancels a running interpret by its run id", async () => {
   assert.equal(model.retryOp, "interpret");
 });
 
+test("clear results goes through the controller without calling the backend", async () => {
+  const { model, backend, controller } = setup();
+  controller.loadExample("factorial");
+  await controller.run("lint");
+  assert.equal(model.results.length, 1);
+  assert.ok(controller.clearResults().ok);
+  assert.deepEqual(model.results, []);
+  assert.equal(backend.calls.length, 1);
+});
+
 test("stop does nothing when idle", async () => {
   const { backend, controller } = setup();
   await controller.stop();

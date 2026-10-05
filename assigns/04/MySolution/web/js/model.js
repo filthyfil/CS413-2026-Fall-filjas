@@ -79,6 +79,10 @@ export class AppModel {
       (this.hasUnappliedEdits || (this.applied !== null && !this.draft.fromApplied));
   }
 
+  get canClearResults() {
+    return this.results.length > 0;
+  }
+
   get hasCurrentArtifact() {
     return this.artifact !== null && this.applied !== null &&
       this.artifact.revision === this.applied.revision;
@@ -196,6 +200,16 @@ export class AppModel {
   markStopping() {
     if (!this.busy || this.busy.stopping) return no("Nothing to stop.");
     this.busy = { ...this.busy, stopping: true };
+    this.#changed();
+    return OK;
+  }
+
+  // Remove shown results (and the retry offer that refers to them).
+  // Source, revision and artifact are unchanged.
+  clearResults() {
+    if (!this.canClearResults) return no("There are no results to clear.");
+    this.results = [];
+    this.retryOp = null;
     this.#changed();
     return OK;
   }

@@ -50,6 +50,7 @@ export class AppView {
       status: $("status"),
       notice: $("notice"),
       results: $("results"),
+      clear: $("clear-btn"),
     };
     this.#bind();
     model.subscribe(() => this.render());
@@ -78,6 +79,7 @@ export class AppView {
     }
     el.stop.addEventListener("click", () => controller.stop());
     el.retry.addEventListener("click", () => controller.retry());
+    el.clear.addEventListener("click", () => controller.clearResults());
   }
 
   render() {
@@ -131,6 +133,7 @@ export class AppView {
     el.notice.textContent = m.notice
       ? `${m.notice.kind === "error" ? "Error" : "Note"}: ${m.notice.text}` : "";
 
+    el.clear.disabled = !m.canClearResults;
     this.#renderResults();
   }
 

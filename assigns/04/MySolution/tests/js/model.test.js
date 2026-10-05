@@ -157,6 +157,35 @@ test("failures and cancellations offer retry; success clears it", () => {
   assert.equal(m.applied.text, PROGRAM);       // source preserved after failure
 });
 
+test("clear results empties the list and retry offer, keeps the source", () => {
+  const m = loaded();
+  assert.equal(m.canClearResults, false);
+  assert.equal(m.clearResults().ok, false);
+  m.beginOperation("lint", "a");
+  m.completeOperation(result("lint", 1));
+  m.beginOperation("interpret", "b");
+  m.completeOperation(result("interpret", 1, "failure"));
+  assert.equal(m.retryOp, "interpret");
+  let notified = 0;
+  m.subscribe(() => { notified += 1; });
+  assert.ok(m.clearResults().ok);
+  assert.equal(notified, 1);
+  assert.deepEqual(m.results, []);
+  assert.equal(m.retryOp, null);
+  assert.deepEqual(m.applied, { name: "prog.txt", text: PROGRAM, revision: 1 });
+  assert.ok(m.canRun("lint"));
+});
+
+test("a result arriving after clear while busy is still shown", () => {
+  const m = loaded();
+  m.beginOperation("lint", "a");
+  m.completeOperation(result("lint", 1));
+  m.beginOperation("interpret", "b");
+  assert.ok(m.clearResults().ok);
+  assert.ok(m.completeOperation(result("interpret", 1)).ok);
+  assert.deepEqual(m.results.map((r) => r.op), ["interpret"]);
+});
+
 test("stale results (wrong op or revision) are ignored", () => {
   const m = loaded();
   m.beginOperation("lint", "a");

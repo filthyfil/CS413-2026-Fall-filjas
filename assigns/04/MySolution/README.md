@@ -51,7 +51,10 @@ node --test               # JavaScript: finds tests/js/*.test.js (Model, Control
    **Compile**, **Execute**. **Stop** cancels a running Interpret.
    **Retry** appears after a failure or a stop.
 4. **Results** list the action, the source revision and the outcome as text,
-   followed by the message and any value.
+   followed by the message and any value. **Clear results** empties the
+   list (and the Retry offer) without changing the source or revision.
+   Results are also cleared automatically whenever a new revision is
+   created.
 
 ## Demonstration
 
