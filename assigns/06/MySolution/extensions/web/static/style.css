@@ -1,0 +1,99 @@
+:root {
+  --bg: #fafafa;
+  --fg: #1d1d1f;
+  --muted: #5b5b66;
+  --panel: #ffffff;
+  --border: #d0d0d7;
+  --accent: #2456c9;
+  --ok: #1b7a3a;
+  --err: #b42318;
+  --warn: #8a5a00;
+  font-family: system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17171a;
+    --fg: #ececf0;
+    --muted: #a3a3ad;
+    --panel: #212126;
+    --border: #3a3a42;
+    --accent: #7ea2ff;
+    --ok: #5cc483;
+    --err: #ff7b72;
+    --warn: #e0b24a;
+  }
+}
+
+body {
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 1rem;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.45;
+}
+
+h1 { margin-bottom: 0.25rem; }
+h2 { font-size: 1.15rem; margin: 0 0 0.5rem; }
+h3 { font-size: 1rem; margin: 0 0 0.25rem; }
+
+section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.5rem 0; }
+
+button, .file {
+  font: inherit;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
+}
+button:not(:disabled) { cursor: pointer; }
+button:disabled { opacity: 0.5; }
+button:focus-visible, textarea:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.file input { margin-left: 0.5rem; }
+
+label[for="editor"] { display: block; font-weight: 600; }
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font: 0.9rem/1.4 ui-monospace, monospace;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+textarea[readonly] { opacity: 0.7; }
+
+#edit-state, #action-hint, .note, #source-info { color: var(--muted); margin: 0.25rem 0; }
+#status { font-weight: 600; }
+#status[data-state="busy"] { color: var(--warn); }
+#notice[data-kind="error"] { color: var(--err); }
+
+#results { list-style: none; padding: 0; margin: 0; }
+.result { border-left: 4px solid var(--border); padding: 0.25rem 0.75rem; margin-bottom: 0.75rem; }
+.result[data-status="ok"] { border-color: var(--ok); }
+.result[data-status="error"], .result[data-status="failure"] { border-color: var(--err); }
+.result[data-status="not_implemented"], .result[data-status="cancelled"] { border-color: var(--warn); }
+.empty { color: var(--muted); }
+
+pre {
+  margin: 0.25rem 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 0.9rem/1.4 ui-monospace, monospace;
+}
+pre.value { font-weight: 600; }

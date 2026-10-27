@@ -1,0 +1,4 @@
+# let x = LOOP in 2
+# source: (let x = ((fix loop(x). (loop x)) 0) in 2)
+# 167 characters
+((lam x. (lam s. (lam z. (s (s z))))) (((lam g. ((lam x. (g (lam v. ((x x) v)))) (lam x. (g (lam v. ((x x) v)))))) (lam loop. (lam x. (loop x)))) (lam s. (lam z. z))))

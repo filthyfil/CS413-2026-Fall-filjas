@@ -1,0 +1,4 @@
+# LOOP
+# source: ((fix loop(x). (loop x)) 0)
+# 128 characters
+(((lam g. ((lam x. (g (lam v. ((x x) v)))) (lam x. (g (lam v. ((x x) v)))))) (lam loop. (lam x. (loop x)))) (lam s. (lam z. z)))

@@ -1,0 +1,4 @@
+# false or true
+# source: (false or true)
+# 98 characters
+((((lam t. (lam f. f)) (lam u_1. (lam t. (lam f. t)))) (lam v_1. (lam t. (lam f. t)))) (lam w. w))
