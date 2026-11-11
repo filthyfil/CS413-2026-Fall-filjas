@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/lambda3-rpc/1.0/rpc.schema.json",
+  "title": "LAMBDA3 JSON-RPC 2.0 service, API version 1.0",
+  "description": "Envelopes for POST /rpc. The HTTP body is either a request (single or batch); the reply body is a response (single or batch) or empty (HTTP 204).",
+
+  "oneOf": [
+    {"$ref": "#/$defs/request"},
+    {"$ref": "#/$defs/batchRequest"}
+  ],
+
+  "$defs": {
+    "id": {
+      "description": "Client-chosen request identifier, echoed unchanged.",
+      "type": ["string", "number", "null"]
+    },
+
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "LAMBDA3 source text. At most 65536 bytes when UTF-8 encoded (byte limit enforced by the server, not expressible here)."
+    },
+
+    "libraries": {
+      "type": "array",
+      "items": {"enum": ["list", "optn", "a1sz", "strm"]},
+      "uniqueItems": true,
+      "default": []
+    },
+
+    "sourceParams": {
+      "type": "object",
+      "properties": {
+        "source": {"$ref": "#/$defs/source"},
+        "libraries": {"$ref": "#/$defs/libraries"}
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    },
+
+    "compileParams": {
+      "type": "object",
+      "properties": {
+        "source": {"$ref": "#/$defs/source"},
+        "target": {"enum": ["python", "javascript"]},
+        "libraries": {"$ref": "#/$defs/libraries"}
+      },
+      "required": ["source", "target"],
+      "additionalProperties": false
+    },
+
+    "emptyParams": {
+      "type": "object",
+      "maxProperties": 0
+    },
+
+    "request": {
+      "description": "A single call (has id) or notification (no id member).",
+      "type": "object",
+      "properties": {
+        "jsonrpc": {"const": "2.0"},
+        "method": {"type": "string"},
+        "params": {"type": ["object", "array"]},
+        "id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["jsonrpc", "method"],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "properties": {"method": {"const": "service.health"}, "params": {"$ref": "#/$defs/emptyParams"}}
+        },
+        {
+          "properties": {"method": {"const": "lambda.typecheck"}, "params": {"$ref": "#/$defs/sourceParams"}},
+          "required": ["params"]
+        },
+        {
+          "properties": {"method": {"const": "lambda.interpret"}, "params": {"$ref": "#/$defs/sourceParams"}},
+          "required": ["params"]
+        },
+        {
+          "properties": {"method": {"const": "lambda.compile"}, "params": {"$ref": "#/$defs/compileParams"}},
+          "required": ["params"]
+        }
+      ]
+    },
+
+    "batchRequest": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 25,
+      "items": {"$ref": "#/$defs/request"}
+    },
+
+    "healthResult": {
+      "type": "object",
+      "properties": {
+        "status": {"const": "ok"},
+        "version": {"const": "1.0"}
+      },
+      "required": ["status", "version"],
+      "additionalProperties": false
+    },
+
+    "typecheckResult": {
+      "type": "object",
+      "properties": {"type": {"type": "string"}},
+      "required": ["type"],
+      "additionalProperties": false
+    },
+
+    "interpretResult": {
+      "type": "object",
+      "properties": {
+        "type": {"type": "string"},
+        "value": {"type": "string"}
+      },
+      "required": ["type", "value"],
+      "additionalProperties": false
+    },
+
+    "compileResult": {
+      "type": "object",
+      "properties": {
+        "target": {"enum": ["python", "javascript"]},
+        "code": {"type": "string", "minLength": 1}
+      },
+      "required": ["target", "code"],
+      "additionalProperties": false
+    },
+
+    "errorObject": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "enum": [-32700, -32600, -32601, -32602, -32603, -32010, -32011, -32012, -32013, -32014]
+        },
+        "message": {"type": "string"},
+        "data": {"type": "object"}
+      },
+      "required": ["code", "message"],
+      "additionalProperties": false
+    },
+
+    "successResponse": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {"const": "2.0"},
+        "result": {
+          "oneOf": [
+            {"$ref": "#/$defs/healthResult"},
+            {"$ref": "#/$defs/interpretResult"},
+            {"$ref": "#/$defs/compileResult"},
+            {"$ref": "#/$defs/typecheckResult"}
+          ]
+        },
+        "id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["jsonrpc", "result", "id"],
+      "additionalProperties": false
+    },
+
+    "errorResponse": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {"const": "2.0"},
+        "error": {"$ref": "#/$defs/errorObject"},
+        "id": {"$ref": "#/$defs/id"}
+      },
+      "required": ["jsonrpc", "error", "id"],
+      "additionalProperties": false
+    },
+
+    "response": {
+      "description": "Exactly one of result or error.",
+      "oneOf": [
+        {"$ref": "#/$defs/successResponse"},
+        {"$ref": "#/$defs/errorResponse"}
+      ]
+    },
+
+    "batchResponse": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/response"}
+    }
+  }
+}
