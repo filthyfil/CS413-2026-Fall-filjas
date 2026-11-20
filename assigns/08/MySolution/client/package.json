@@ -1,0 +1,6 @@
+{
+  "name": "queens-client",
+  "private": true,
+  "type": "module",
+  "description": "Browser client for the N-Queens RPC service. No dependencies; package.json only marks these files as ES modules for Node tests."
+}

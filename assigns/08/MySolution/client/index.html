@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>N-Queens Search</title>
+  <link rel="stylesheet" href="static/app.css">
+  <script type="module" src="static/main.js"></script>
+</head>
+<body>
+  <header>
+    <h1>N-Queens Search</h1>
+    <p class="sub">Depth-first CPS search in LAMBDA3, streamed lazily one event at a time over JSON-RPC.</p>
+  </header>
+
+  <main>
+    <section class="stage">
+      <div class="status-row">
+        <span id="state" class="state" data-state="idle">Not started</span>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </div>
+      <div id="board" class="board" aria-label="Chessboard"></div>
+      <div id="banner" class="banner" hidden>
+        <p id="banner-text"></p>
+        <div class="banner-actions">
+          <button id="btn-retry" type="button">Retry</button>
+          <button id="btn-restart" type="button">Restart search</button>
+        </div>
+      </div>
+      <ul class="legend" aria-label="Legend">
+        <li><span class="swatch sw-try"></span>try</li>
+        <li><span class="swatch sw-place"></span>place</li>
+        <li><span class="swatch sw-reject"></span>reject (attacker shown)</li>
+        <li><span class="swatch sw-backtrack"></span>backtrack</li>
+        <li><span class="swatch sw-solution"></span>solution</li>
+      </ul>
+    </section>
+
+    <aside class="panel">
+      <div class="controls" role="group" aria-label="Playback controls">
+        <button id="btn-start" type="button" class="primary" title="Start a fresh search (S)">Start</button>
+        <button id="btn-step" type="button" title="Show the next event (→)">Step</button>
+        <button id="btn-play" type="button" aria-pressed="false" title="Play or pause (Space)">Play</button>
+        <button id="btn-next" type="button" title="Run to the next solution (N)">Next solution</button>
+        <button id="btn-reset" type="button" title="Clear and close the stream (R)">Reset</button>
+      </div>
+
+      <div class="settings">
+        <label>Board
+          <select id="size">
+            <option value="4">4×4</option><option value="5">5×5</option><option value="6">6×6</option>
+            <option value="7">7×7</option><option value="8" selected>8×8</option>
+            <option value="9">9×9</option><option value="10">10×10</option>
+          </select>
+        </label>
+        <label class="speed">Speed
+          <input id="speed" type="range" min="0" max="100" value="50">
+          <output id="speed-out" for="speed"></output>
+        </label>
+      </div>
+
+      <dl class="stats">
+        <div class="big"><dt>Solutions</dt><dd data-stat="solution">0</dd></div>
+        <div><dt>Events</dt><dd data-stat="events">0</dd></div>
+        <div><dt>Tries</dt><dd data-stat="try">0</dd></div>
+        <div><dt>Placed</dt><dd data-stat="place">0</dd></div>
+        <div><dt>Rejected</dt><dd data-stat="reject">0</dd></div>
+        <div><dt>Backtracks</dt><dd data-stat="backtrack">0</dd></div>
+        <div><dt>RPC calls</dt><dd data-stat="rpcCalls">0</dd></div>
+        <div><dt>Fetched</dt><dd data-stat="fetched">0</dd></div>
+        <div><dt>Buffered</dt><dd data-stat="buffered">0</dd></div>
+      </dl>
+
+      <details open>
+        <summary>Solutions found</summary>
+        <ol id="solutions" class="solutions"></ol>
+      </details>
+      <details open>
+        <summary>Event log <small>(newest first)</small></summary>
+        <ol id="log" class="log"></ol>
+      </details>
+      <p class="keys">Keys: <kbd>S</kbd> start · <kbd>→</kbd> step · <kbd>Space</kbd> play/pause · <kbd>N</kbd> next solution · <kbd>R</kbd> reset</p>
+    </aside>
+  </main>
+  <noscript>This page needs JavaScript to talk to the solver.</noscript>
+</body>
+</html>
